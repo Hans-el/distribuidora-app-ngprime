@@ -4,16 +4,23 @@ import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Documentation } from './app/pages/documentation/documentation';
 import { Notfound } from './app/pages/notfound/notfound';
 import { jefaturaGuard } from './app/core/guards/jefatura-guard';
+import { Login } from './app/pages/auth/login';
 
 export const appRoutes: Routes = [
+    // publico
+    {
+        path: '',
+        redirectTo: '/auth/login',
+        pathMatch: 'full'
+    },
+    // Aplicación autenticada
     {
         path: '',
         component: AppLayout,
         children: [
-            { path: '', component: Dashboard },
             {
-                path: 'uikit',
-                loadChildren: () => import('./app/pages/uikit/uikit.routes')
+                path: 'dashboard',
+                component: Dashboard
             },
             {
                 path: 'documentation',

@@ -1,54 +1,59 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
+
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { AuthService } from '../../../core/services/auth.service';
+import { PasswordModule } from 'primeng/password';
+import { RippleModule } from 'primeng/ripple';
+import { MessageModule } from 'primeng/message';
+import { AuthService } from '@/app/core/services/auth.service';
+import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconfigurator';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ReactiveFormsModule, ButtonModule, InputTextModule],
-    templateUrl: './login.html',
-    styleUrl: './login.scss'
+    imports: [ButtonModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, MessageModule, AppFloatingConfigurator],
+    templateUrl: './login.html'
 })
 export class Login {
-    private fb = inject(FormBuilder);
     private auth = inject(AuthService);
     private router = inject(Router);
+
+    username = '';
+    password = '';
 
     loading = signal(false);
     error = signal<string | null>(null);
 
-    form = this.fb.group({
-        username: ['', Validators.required],
-        password: ['', Validators.required]
-    });
+    login(): void {
+        this.error.set(null);
 
-    submit(): void {
-        if (this.form.invalid) {
-            this.form.markAllAsTouched();
+        if (!this.username.trim() || !this.password) {
+            this.error.set('Ingrese usuario y contraseña.');
             return;
         }
 
         this.loading.set(true);
-        this.error.set(null);
 
         this.auth
-            .login(
-                this.form.getRawValue() as {
-                    username: string;
-                    password: string;
-                }
-            )
+            .login({
+                username: this.username.trim(),
+                password: this.password
+            })
             .subscribe({
                 next: () => {
                     this.loading.set(false);
-                    this.router.navigateByUrl('/orders');
+                    this.router.navigateByUrl('/dashboard');
                 },
-                error: () => {
+                error: (error) => {
                     this.loading.set(false);
-                    this.error.set('Usuario o contraseña incorrectos');
+
+                    if (error.status === 401) {
+                        this.error.set('Usuario o contraseña incorrectos.');
+                    } else {
+                        this.error.set('No fue posible iniciar sesión. Intente nuevamente.');
+                    }
                 }
             });
     }
