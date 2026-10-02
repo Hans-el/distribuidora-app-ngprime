@@ -1,0 +1,46 @@
+<div class="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-950 px-6">
+    <div class="w-full max-w-md">
+        <div class="card p-8">
+            <div class="mb-8 text-center">
+                <div class="text-primary text-3xl font-semibold mb-3">Distribuidora</div>
+
+                <div class="text-surface-500 dark:text-surface-400">Inicia sesión para continuar</div>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+                <div class="flex flex-col gap-2">
+                    <label for="username" class="text-surface-900 dark:text-surface-0 font-medium"> Usuario </label>
+
+                    <input id="username" pInputText type="text" formControlName="username" autocomplete="username"
+                        placeholder="ej. andrea.morales" class="w-full" />
+
+                    @if (form.controls.username.invalid && form.controls.username.touched) {
+                    <small class="text-red-500"> El usuario es obligatorio. </small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label for="password" class="text-surface-900 dark:text-surface-0 font-medium"> Contraseña </label>
+
+                    <input id="password" pInputText type="password" formControlName="password"
+                        autocomplete="current-password" class="w-full" />
+
+                    @if (form.controls.password.invalid && form.controls.password.touched) {
+                    <small class="text-red-500"> La contraseña es obligatoria. </small>
+                    }
+                </div>
+
+                @if (error()) {
+                <div
+                    class="flex items-center gap-2 p-3 rounded-border bg-red-50 text-red-700 border border-red-200 dark:bg-red-400/10 dark:text-red-400 dark:border-red-400/30">
+                    <i class="pi pi-exclamation-circle"></i>
+                    <span class="text-sm">{{ error() }}</span>
+                </div>
+                }
+
+                <p-button type="submit" label="Ingresar" icon="pi pi-sign-in" [loading]="loading()"
+                    [disabled]="loading()" styleClass="w-full" />
+            </form>
+        </div>
+    </div>
+</div>

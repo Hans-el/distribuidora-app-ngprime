@@ -1,0 +1,128 @@
+<div class="grid grid-cols-12 gap-8">
+    <div class="col-span-12 lg:col-span-8 lg:col-start-3">
+
+        <div class="card">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+
+                <div>
+                    <h2 class="text-xl font-semibold text-surface-900 dark:text-surface-0">
+                        {{ esEdicion ? 'Editar producto' : 'Nuevo producto' }}
+                    </h2>
+
+                    <p class="text-surface-500 dark:text-surface-400 mt-1">
+                        {{ esEdicion
+                        ? 'Actualiza la información del producto.'
+                        : 'Registra un nuevo producto en el catálogo.'
+                        }}
+                    </p>
+                </div>
+
+                <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" [outlined]="true"
+                    routerLink="/products" />
+
+            </div>
+
+            <!-- Loading -->
+            @if (loading()) {
+
+            <div class="flex justify-center py-12">
+                <i class="pi pi-spin pi-spinner text-2xl"></i>
+            </div>
+
+            } @else {
+
+            <!-- Error -->
+            @if (error()) {
+            <p-message severity="error" [text]="error()!" styleClass="w-full mb-6" />
+            }
+
+            <!-- Form -->
+            <div class="grid grid-cols-12 gap-6">
+
+                <!-- Código -->
+                <div class="col-span-12 md:col-span-6">
+
+                    <label for="codigo" class="block font-medium mb-2">
+                        Código
+                    </label>
+
+                    <input id="codigo" pInputText type="text" [(ngModel)]="form.codigo" class="w-full"
+                        placeholder="Ej. AMOX500" />
+
+                </div>
+
+                <!-- Precio -->
+                <div class="col-span-12 md:col-span-6">
+
+                    <label for="precioLista" class="block font-medium mb-2">
+                        Precio de lista
+                    </label>
+
+                    <p-inputNumber inputId="precioLista" [(ngModel)]="form.precioLista" mode="currency" currency="USD"
+                        locale="en-US" [min]="0" class="w-full" />
+
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-span-12">
+
+                    <label for="nombre" class="block font-medium mb-2">
+                        Nombre
+                    </label>
+
+                    <input id="nombre" pInputText type="text" [(ngModel)]="form.nombre" class="w-full"
+                        placeholder="Nombre del producto" />
+
+                </div>
+
+                <!-- Laboratorio -->
+                <div class="col-span-12">
+                    <label for="laboratorio" class="block font-medium mb-2">
+                        Laboratorio
+                    </label>
+                    <p-select id="laboratorio" [(ngModel)]="form.laboratorioId" [options]="laboratorios()"
+                        optionLabel="nombre" optionValue="id" placeholder="Selecciona un laboratorio" [showClear]="true"
+                        class="w-full">
+                        <ng-template #footer>
+                            <div class="p-3 border-t border-surface-200 dark:border-surface-700">
+                                <button type="button"
+                                    class="flex items-center gap-2 w-full p-2 rounded-border hover:bg-surface-100 dark:hover:bg-surface-800"
+                                    (click)="form.laboratorioId = LAB_NUEVO">
+                                    <i class="pi pi-plus"></i>
+                                    <span>Nuevo laboratorio</span>
+                                </button>
+                            </div>
+                        </ng-template>
+                    </p-select>
+                    @if (form.laboratorioId === LAB_NUEVO) {
+                    <div class="flex flex-col gap-2 mt-4">
+                        <label for="nuevoLaboratorio" class="font-medium">
+                            Nombre del nuevo laboratorio
+                        </label>
+                        <input id="nuevoLaboratorio" pInputText type="text" [(ngModel)]="nombreLabNuevo"
+                            placeholder="Ej. Laboratorios XYZ" class="w-full" />
+                    </div>
+                    }
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
+
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" routerLink="/products"
+                    [disabled]="guardando()" />
+
+                <p-button [label]="esEdicion ? 'Guardar cambios' : 'Crear producto'" icon="pi pi-check"
+                    [loading]="guardando()" (onClick)="guardar()" />
+
+            </div>
+
+            }
+
+        </div>
+
+    </div>
+</div>

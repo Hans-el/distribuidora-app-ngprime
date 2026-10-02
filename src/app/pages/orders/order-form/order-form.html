@@ -1,0 +1,129 @@
+<div class="grid grid-cols-12 gap-8">
+    <div class="col-span-12 lg:col-span-10 xl:col-span-8">
+        <div class="card">
+            <!-- Encabezado -->
+            <div class="flex flex-col gap-2 mb-6">
+                <div class="font-semibold text-xl">Nuevo pedido</div>
+                <div class="text-surface-600 dark:text-surface-200">Selecciona la farmacia y agrega los productos del
+                    pedido.</div>
+            </div>
+
+            <!-- Farmacia -->
+            <div class="flex flex-col gap-2 mb-8">
+                <label for="farmacia" class="font-medium"> Farmacia </label>
+                <p-select id="farmacia" [(ngModel)]="farmaciaId" [options]="farmacias()" optionLabel="nombre"
+                    optionValue="id" placeholder="Selecciona una farmacia" [showClear]="true" class="w-full">
+                    <ng-template #item let-farmacia>
+                        <div class="flex flex-col">
+                            <span class="font-medium"> {{ farmacia.nombre }} </span>
+                            <span class="text-sm text-surface-500"> {{ farmacia.ciudad }} </span>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <!-- Productos -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="font-semibold text-lg">Productos</div>
+                        <div class="text-sm text-surface-500 mt-1">Agrega los productos y cantidades del pedido.</div>
+                    </div>
+                    <p-button label="Agregar línea" icon="pi pi-plus" severity="secondary" [outlined]="true"
+                        (onClick)="agregarLinea()" />
+                </div>
+
+                <!-- Líneas -->
+                <div class="flex flex-col gap-4">
+                    @for (linea of lineas(); track $index) {
+
+                    <div class="border border-surface-200 dark:border-surface-700 rounded-border p-4">
+                        <div class="grid grid-cols-12 gap-4 items-end">
+                            <!-- Producto -->
+                            <div class="col-span-12 lg:col-span-5">
+                                <label class="block font-medium mb-2"> Producto </label>
+                                <p-select [(ngModel)]="linea.productoId" [options]="productos()" optionLabel="nombre"
+                                    optionValue="id" placeholder="Selecciona un producto" [showClear]="true"
+                                    class="w-full">
+                                    <ng-template #item let-producto>
+                                        <div class="flex flex-col">
+                                            <span class="font-medium"> {{ producto.nombre }} </span>
+                                            <span class="text-sm text-surface-500"> {{ producto.codigo }} · ${{
+                                                producto.precioLista | number:'1.2-2' }} </span>
+                                        </div>
+                                    </ng-template>
+                                </p-select>
+                            </div>
+
+                            <!-- Cantidad -->
+                            <div class="col-span-6 lg:col-span-2">
+                                <label class="block font-medium mb-2"> Cantidad </label>
+                                <p-inputnumber [(ngModel)]="linea.cantidad" [min]="1" [showButtons]="true"
+                                    buttonLayout="horizontal" [step]="1" inputStyleClass="w-full text-center"
+                                    class="w-full" />
+                            </div>
+
+                            <!-- Descuento -->
+                            <div class="col-span-6 lg:col-span-2">
+                                <label class="block font-medium mb-2"> Descuento % </label>
+                                <p-inputnumber [(ngModel)]="linea.descuentoPct" [min]="0" [max]="100"
+                                    [minFractionDigits]="0" [maxFractionDigits]="2" suffix="%" class="w-full" />
+                            </div>
+
+                            <!-- Precio -->
+                            <div class="col-span-6 lg:col-span-2">
+                                <label class="block font-medium mb-2"> Precio </label>
+                                <div
+                                    class="h-11 flex items-center justify-end px-3 rounded-border bg-surface-100 dark:bg-surface-800">
+                                    <span class="font-medium"> ${{ precioDe(linea.productoId) | number:'1.2-2' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Eliminar -->
+                            <div class="col-span-2 lg:col-span-1 flex justify-end">
+                                <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                                    ariaLabel="Eliminar línea" (onClick)="quitarLinea($index)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    } @empty {
+
+                    <div
+                        class="border border-dashed border-surface-300 dark:border-surface-600 rounded-border p-8 text-center">
+                        <i class="pi pi-shopping-cart text-3xl text-surface-400 mb-3"></i>
+                        <div class="text-surface-500">No hay productos agregados.</div>
+                        <p-button label="Agregar producto" icon="pi pi-plus" [text]="true" class="mt-2"
+                            (onClick)="agregarLinea()" />
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div
+                class="flex items-center justify-between border-t border-surface-200 dark:border-surface-700 mt-8 pt-6">
+                <div>
+                    <div class="font-medium">Total estimado</div>
+                    <div class="text-sm text-surface-500">El total definitivo será calculado por el servidor.</div>
+                </div>
+                <div class="text-2xl font-semibold text-primary">${{ total() | number:'1.2-2' }}</div>
+            </div>
+
+            <!-- Error -->
+            @if (error()) {
+            <div class="mt-6">
+                <p-message severity="error" [text]="error()!" />
+            </div>
+
+            }
+
+            <!-- Acciones -->
+            <div class="flex justify-end gap-2 mt-6 pt-6 border-t border-surface-200 dark:border-surface-700">
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" routerLink="/orders" />
+                <p-button label="Registrar pedido" icon="pi pi-check" [loading]="guardando()" [disabled]="guardando()"
+                    (onClick)="guardar()" />
+            </div>
+        </div>
+    </div>
+</div>

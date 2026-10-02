@@ -1,0 +1,98 @@
+<div class="grid grid-cols-12 gap-8">
+    <div class="col-span-12">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-xl font-semibold text-surface-900 dark:text-surface-0">
+                    Productos
+                </h2>
+                <p class="text-surface-500 dark:text-surface-400 mt-1">
+                    Administra los productos y sus precios de lista.
+                </p>
+            </div>
+            <p-button label="Nuevo producto" icon="pi pi-plus" routerLink="/products/new" />
+        </div>
+
+        <!-- Listado -->
+        <div class="card">
+            <!-- Toolbar -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-0">
+                        Catálogo de productos
+                    </h3>
+                    <p class="text-surface-500 dark:text-surface-400 mt-1">
+                        Productos activos e inactivos registrados.
+                    </p>
+                </div>
+
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input pInputText type="text" [(ngModel)]="search" (keyup.enter)="buscar()"
+                        placeholder="Buscar producto..." class="w-full md:w-80" />
+                    <p-button icon="pi pi-search" severity="secondary" [outlined]="true" (onClick)="buscar()"
+                        pTooltip="Buscar" />
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <p-table [value]="productos()" [loading]="loading()" [paginator]="true" [rows]="size"
+                [totalRecords]="totalRecords" [lazy]="true" [rowHover]="true" [showGridlines]="true"
+                responsiveLayout="scroll" dataKey="id" (onLazyLoad)="onPageChange($event)">
+                <ng-template #header>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Laboratorio</th>
+                        <th>Precio lista</th>
+                        <th>Estado</th>
+                        <th class="w-32">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-producto>
+                    <tr>
+                        <td>
+                            <span class="font-medium">
+                                {{ producto.codigo }}
+                            </span>
+                        </td>
+                        <td>
+                            {{ producto.nombre }}
+                        </td>
+                        <td>
+                            {{ producto.laboratorio }}
+                        </td>
+                        <td>
+                            {{ producto.precioLista | currency:'USD':'symbol':'1.2-2' }}
+                        </td>
+                        <td>
+                            <p-tag [value]="producto.activo ? 'Activo' : 'Inactivo'"
+                                [severity]="producto.activo ? 'success' : 'danger'" />
+                        </td>
+                        <td>
+                            <div class="flex gap-1">
+                                <p-button icon="pi pi-pencil" [text]="true" severity="secondary"
+                                    [routerLink]="['/products', producto.id, 'edit']" pTooltip="Editar" />
+
+                                <p-button [icon]="producto.activo ? 'pi pi-ban' : 'pi pi-check'" [text]="true"
+                                    [severity]="producto.activo ? 'danger' : 'success'"
+                                    (onClick)="toggleActivo(producto)"
+                                    [pTooltip]="producto.activo ? 'Desactivar' : 'Activar'" />
+
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-surface-500">
+                            No se encontraron productos.
+                        </td>
+                    </tr>
+                </ng-template>
+
+            </p-table>
+        </div>
+    </div>
+</div>

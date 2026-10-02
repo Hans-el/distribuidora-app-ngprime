@@ -1,0 +1,119 @@
+<div class="grid grid-cols-12 gap-8">
+    <!-- Filtros -->
+    <div class="col-span-12">
+        <div class="card">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-surface-900 dark:text-surface-0">Pedidos</h2>
+                </div>
+                <p-button label="Nuevo pedido" icon="pi pi-plus" routerLink="/orders/new" />
+            </div>
+            <div class="text-surface-600 dark:text-surface-200 mb-6">Consulta y filtra los pedidos registrados en la
+                distribuidora.</div>
+
+            <div class="grid grid-cols-12 gap-4">
+                <!-- Farmacia -->
+                <div class="col-span-12 md:col-span-6 lg:col-span-3">
+                    <label for="farmacia" class="block font-medium mb-2"> Farmacia </label>
+
+                    <p-select id="farmacia" [(ngModel)]="filtroFarmaciaId" [options]="farmacias()" optionLabel="nombre"
+                        optionValue="id" placeholder="Todas" [showClear]="true" class="w-full" />
+                </div>
+
+                <!-- Estado -->
+                <div class="col-span-12 md:col-span-6 lg:col-span-3">
+                    <label for="estado" class="block font-medium mb-2"> Estado </label>
+
+                    <p-select id="estado" [(ngModel)]="filtroEstado" [options]="estados" optionLabel="label"
+                        optionValue="value" placeholder="Todos" [showClear]="true" class="w-full" />
+                </div>
+
+                <!-- Desde -->
+                <div class="col-span-12 md:col-span-6 lg:col-span-3">
+                    <label for="desde" class="block font-medium mb-2"> Desde </label>
+
+                    <p-datepicker id="desde" [(ngModel)]="filtroFrom" dateFormat="yy-mm-dd" [showIcon]="true"
+                        [showButtonBar]="true" placeholder="Seleccionar fecha" class="w-full"
+                        inputStyleClass="w-full" />
+                </div>
+
+                <!-- Hasta -->
+                <div class="col-span-12 md:col-span-6 lg:col-span-3">
+                    <label for="hasta" class="block font-medium mb-2"> Hasta </label>
+
+                    <p-datepicker id="hasta" [(ngModel)]="filtroTo" dateFormat="yy-mm-dd" [showIcon]="true"
+                        [showButtonBar]="true" placeholder="Seleccionar fecha" class="w-full"
+                        inputStyleClass="w-full" />
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex flex-wrap justify-end gap-2 mt-6">
+                <p-button label="Limpiar" icon="pi pi-filter-slash" severity="secondary" [outlined]="true"
+                    (onClick)="limpiar()" />
+                <p-button label="Filtrar" icon="pi pi-filter" (onClick)="buscar()" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="col-span-12">
+        <div class="card">
+            <div class="font-semibold text-xl mb-4">Lista de pedidos</div>
+            <p-table [value]="pedidos()" dataKey="id" [loading]="loading()" [rowHover]="true" [showGridlines]="true"
+                [paginator]="true" [rows]="size" [totalRecords]="totalRecords" [lazy]="true" [first]="page * size"
+                responsiveLayout="scroll" (onLazyLoad)="onPageChange($event)">
+                <!-- Cabecera -->
+                <ng-template #header>
+                    <tr>
+                        <th>Farmacia</th>
+                        <th>Vendedor</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-center">Acción</th>
+                    </tr>
+                </ng-template>
+
+                <!-- Filas -->
+                <ng-template #body let-pedido>
+                    <tr>
+                        <td>
+                            <div class="font-medium">{{ pedido.farmaciaNombre }}</div>
+                        </td>
+                        <td>{{ pedido.vendedorNombre }}</td>
+                        <td>{{ pedido.fecha }}</td>
+                        <td>
+                            <p-tag [value]="pedido.estado" [severity]="severidadEstado(pedido.estado)" />
+                        </td>
+                        <td class="text-right font-medium">{{ pedido.total | number:'1.2-2' }}</td>
+                        <td class="text-center">
+                            <p-button label="Ver" icon="pi pi-eye" severity="secondary" [text]="true"
+                                [routerLink]="['/orders', pedido.id]" />
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Sin resultados -->
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="6" class="text-center py-8">
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="pi pi-inbox text-3xl text-surface-400"></i>
+
+                                <span class="text-surface-500"> No se encontraron pedidos con esos filtros. </span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <!-- Loading -->
+                <ng-template #loadingbody>
+                    <tr>
+                        <td colspan="6" class="text-center py-6">Cargando pedidos...</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
