@@ -1,35 +1,66 @@
 import { Routes } from '@angular/router';
+
 import { AppLayout } from './app/layout/component/app.layout';
+
 import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Documentation } from './app/pages/documentation/documentation';
 import { Notfound } from './app/pages/notfound/notfound';
+
+import { authGuard } from './app/core/guards/auth-guard';
 import { jefaturaGuard } from './app/core/guards/jefatura-guard';
-import { Login } from './app/pages/auth/login';
 
 export const appRoutes: Routes = [
-    // publico
+    // =========================================================
+    // PÚBLICO
+    // =========================================================
+
     {
         path: '',
         redirectTo: '/auth/login',
         pathMatch: 'full'
     },
-    // Aplicación autenticada
+
+    {
+        path: 'auth',
+        children: [
+            {
+                path: 'login',
+                loadComponent: () => import('./app/pages/auth/login/login').then((m) => m.Login)
+            }
+        ]
+    },
+
+    // =========================================================
+    // APLICACIÓN AUTENTICADA
+    // =========================================================
+
     {
         path: '',
         component: AppLayout,
+        canActivate: [authGuard],
         children: [
+            // Dashboard
             {
                 path: 'dashboard',
                 component: Dashboard
             },
+
+            // Documentación
             {
                 path: 'documentation',
                 component: Documentation
             },
+
+            // Páginas de Sakai
             {
                 path: 'pages',
                 loadChildren: () => import('./app/pages/pages.routes')
             },
+
+            // =====================================================
+            // PEDIDOS
+            // =====================================================
+
             {
                 path: 'orders',
                 children: [
@@ -47,6 +78,11 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
+
+            // =====================================================
+            // FARMACIAS
+            // =====================================================
+
             {
                 path: 'pharmacies',
                 children: [
@@ -69,6 +105,11 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
+
+            // =====================================================
+            // PRODUCTOS - SOLO JEFATURA
+            // =====================================================
+
             {
                 path: 'products',
                 canActivate: [jefaturaGuard],
@@ -87,6 +128,11 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
+
+            // =====================================================
+            // REPORTES - SOLO JEFATURA
+            // =====================================================
+
             {
                 path: 'reports',
                 canActivate: [jefaturaGuard],
@@ -104,11 +150,17 @@ export const appRoutes: Routes = [
         ]
     },
 
-    { path: 'notfound', component: Notfound },
+    // =========================================================
+    // ERROR
+    // =========================================================
+
     {
-        path: 'auth',
-        loadChildren: () => import('./app/pages/auth/auth.routes')
+        path: 'notfound',
+        component: Notfound
     },
 
-    { path: '**', redirectTo: '/notfound' }
+    {
+        path: '**',
+        redirectTo: '/notfound'
+    }
 ];
