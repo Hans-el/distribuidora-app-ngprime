@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -20,6 +20,7 @@ import { EstadoPedido, Pedido } from '../../../core/models/order.model';
 export class OrderDetails implements OnInit {
     private route = inject(ActivatedRoute);
     private orderService = inject(OrderService);
+    private router = inject(Router);
 
     pedido = signal<Pedido | null>(null);
     loading = signal(true);

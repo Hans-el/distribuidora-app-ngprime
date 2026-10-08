@@ -1,0 +1,39 @@
+<div class="grid grid-cols-12 gap-8">
+    <div class="col-span-12 lg:col-span-8 xl:col-span-6">
+        <div class="card">
+            <div class="flex flex-col gap-2 mb-6">
+                <div class="font-semibold text-xl">{{ esEdicion ? 'Editar vendedor' : 'Nuevo vendedor' }}</div>
+                <div class="text-surface-600 dark:text-surface-200">
+                    {{ esEdicion ? 'Actualiza el nombre del vendedor.' : 'Registra un nuevo vendedor del equipo.' }}
+                </div>
+            </div>
+
+            @if (loading()) {
+            <div class="flex justify-center py-8">
+                <i class="pi pi-spin pi-spinner text-2xl text-surface-400"></i>
+            </div>
+            } @else {
+
+            <div>
+                <label for="nombre" class="block font-medium mb-2">Nombre</label>
+                <input id="nombre" pInputText type="text" [(ngModel)]="nombre" placeholder="Ej. Andrea Morales"
+                    class="w-full" />
+            </div>
+
+            @if (error()) {
+            <div class="mt-6">
+                <p-message severity="error" [text]="error()!" />
+            </div>
+            }
+
+            <div class="flex justify-end gap-2 mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" routerLink="/vendors"
+                    [disabled]="guardando()" />
+                <p-button [label]="esEdicion ? 'Guardar cambios' : 'Registrar vendedor'" icon="pi pi-check"
+                    [loading]="guardando()" [disabled]="guardando()" (onClick)="guardar()" />
+            </div>
+
+            }
+        </div>
+    </div>
+</div>

@@ -55,10 +55,14 @@ export class AppMenu implements OnInit {
                     label: 'Reportes',
                     icon: 'pi pi-fw pi-chart-bar',
                     routerLink: ['/reports']
+                },
+                {
+                    label: 'Vendedores',
+                    icon: 'pi pi-fw pi-users',
+                    routerLink: ['/vendors']
                 }
             );
         }
-
         this.model = [
             {
                 label: 'Home',

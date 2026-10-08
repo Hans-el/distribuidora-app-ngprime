@@ -1,3 +1,4 @@
+// farmacias y vendedores
 export interface Farmacia {
     id: number;
     nombre: string;
@@ -20,9 +21,14 @@ export interface FarmaciaInactiva {
     region: string;
     ultimaVentaEntregada: string | null;
 }
-
+// vendedores
 export interface Vendedor {
     id: number;
+    nombre: string;
+    activo: boolean;
+}
+
+export interface VendedorRequest {
     nombre: string;
 }
 

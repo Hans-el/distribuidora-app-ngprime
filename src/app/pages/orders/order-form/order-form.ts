@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
@@ -26,18 +27,24 @@ interface LineaEditable {
     styleUrl: './order-form.scss'
 })
 export class OrderForm implements OnInit {
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private orderService = inject(OrderService);
     private pharmacyService = inject(PharmacyService);
     private productService = inject(ProductService);
-    private router = inject(Router);
 
     farmacias = signal<Farmacia[]>([]);
     productos = signal<Producto[]>([]);
 
     farmaciaId: number | null = null;
+    farmaciaNombre = '';
 
     lineas = signal<LineaEditable[]>([this.lineaVacia()]);
 
+    pedidoId: number | null = null;
+    modoEdicion = signal(false);
+
+    cargando = signal(true);
     guardando = signal(false);
     error = signal<string | null>(null);
 
@@ -56,12 +63,52 @@ export class OrderForm implements OnInit {
     );
 
     ngOnInit(): void {
-        this.pharmacyService.listar().subscribe((farmacias) => {
-            this.farmacias.set(farmacias);
-        });
+        const idParam = this.route.snapshot.paramMap.get('id');
 
-        this.productService.listarActivos().subscribe((productos) => {
+        forkJoin({
+            farmacias: this.pharmacyService.listar(),
+            productos: this.productService.listarActivos()
+        }).subscribe(({ farmacias, productos }) => {
+            this.farmacias.set(farmacias);
             this.productos.set(productos);
+
+            if (idParam) {
+                this.cargarParaEditar(Number(idParam));
+            } else {
+                this.cargando.set(false);
+            }
+        });
+    }
+
+    private cargarParaEditar(id: number): void {
+        this.pedidoId = id;
+        this.modoEdicion.set(true);
+
+        this.orderService.obtener(id).subscribe({
+            next: (pedido) => {
+                if (pedido.estado !== 'PENDIENTE') {
+                    this.error.set('Solo se pueden editar pedidos en estado PENDIENTE');
+                    this.cargando.set(false);
+                    return;
+                }
+
+                this.farmaciaId = pedido.farmaciaId;
+                this.farmaciaNombre = pedido.farmaciaNombre;
+
+                this.lineas.set(
+                    pedido.lineas.map((linea) => ({
+                        productoId: this.productos().find((p) => p.codigo === linea.productoCodigo)?.id ?? null,
+                        cantidad: linea.cantidad,
+                        descuentoPct: linea.descuentoPct
+                    }))
+                );
+
+                this.cargando.set(false);
+            },
+            error: (err) => {
+                this.error.set(err?.error?.message ?? 'No se pudo cargar el pedido');
+                this.cargando.set(false);
+            }
         });
     }
 
@@ -88,7 +135,7 @@ export class OrderForm implements OnInit {
     guardar(): void {
         this.error.set(null);
 
-        if (!this.farmaciaId) {
+        if (!this.modoEdicion() && !this.farmaciaId) {
             this.error.set('Selecciona una farmacia');
             return;
         }
@@ -100,29 +147,25 @@ export class OrderForm implements OnInit {
             return;
         }
 
+        const lineasRequest = lineasValidas.map((linea) => ({
+            productoId: linea.productoId!,
+            cantidad: linea.cantidad,
+            descuentoPct: linea.descuentoPct || 0
+        }));
+
         this.guardando.set(true);
 
-        this.orderService
-            .crear({
-                farmaciaId: this.farmaciaId,
-                lineas: lineasValidas.map((linea) => ({
-                    productoId: linea.productoId!,
-                    cantidad: linea.cantidad,
-                    descuentoPct: linea.descuentoPct || 0
-                }))
-            })
-            .subscribe({
-                next: (pedido) => {
-                    this.guardando.set(false);
+        const obs = this.modoEdicion() ? this.orderService.editar(this.pedidoId!, { lineas: lineasRequest }) : this.orderService.crear({ farmaciaId: this.farmaciaId!, lineas: lineasRequest });
 
-                    this.router.navigate(['/orders', pedido.id]);
-                },
-
-                error: (err) => {
-                    this.guardando.set(false);
-
-                    this.error.set(err?.error?.message ?? 'No se pudo registrar el pedido');
-                }
-            });
+        obs.subscribe({
+            next: (pedido) => {
+                this.guardando.set(false);
+                this.router.navigate(['/orders', pedido.id]);
+            },
+            error: (err) => {
+                this.guardando.set(false);
+                this.error.set(err?.error?.message ?? 'No se pudo guardar el pedido');
+            }
+        });
     }
 }

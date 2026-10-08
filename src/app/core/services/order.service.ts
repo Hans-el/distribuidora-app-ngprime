@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { EstadoPedido, Pedido, PedidoRequest } from '../models/order.model';
+import { EditarPedidoRequest, EstadoPedido, Pedido, PedidoRequest } from '../models/order.model';
 import { PageResponse } from '../models/page.model';
 
 // usamos FiltrosPedido para filtrar los pedidos en la API.
@@ -45,7 +45,9 @@ export class OrderService {
     obtener(id: number) {
         return this.http.get<Pedido>(`${this.base}/${id}`);
     }
-
+    editar(id: number, request: EditarPedidoRequest) {
+        return this.http.put<Pedido>(`${this.base}/${id}`, request);
+    }
     cambiarEstado(id: number, estado: EstadoPedido) {
         return this.http.patch<Pedido>(`${this.base}/${id}/status`, { estado });
     }

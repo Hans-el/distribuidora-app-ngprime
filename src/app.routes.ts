@@ -1,25 +1,19 @@
 import { Routes } from '@angular/router';
 
 import { AppLayout } from './app/layout/component/app.layout';
-
 import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Documentation } from './app/pages/documentation/documentation';
 import { Notfound } from './app/pages/notfound/notfound';
-
 import { authGuard } from './app/core/guards/auth-guard';
 import { jefaturaGuard } from './app/core/guards/jefatura-guard';
 
 export const appRoutes: Routes = [
-    // =========================================================
-    // PÚBLICO
-    // =========================================================
-
+    //  RUTAS PÚBLICAS
     {
         path: '',
         redirectTo: '/auth/login',
         pathMatch: 'full'
     },
-
     {
         path: 'auth',
         children: [
@@ -29,11 +23,7 @@ export const appRoutes: Routes = [
             }
         ]
     },
-
-    // =========================================================
-    // APLICACIÓN AUTENTICADA
-    // =========================================================
-
+    // RUTAS AUTENTICADA
     {
         path: '',
         component: AppLayout,
@@ -57,10 +47,7 @@ export const appRoutes: Routes = [
                 loadChildren: () => import('./app/pages/pages.routes')
             },
 
-            // =====================================================
             // PEDIDOS
-            // =====================================================
-
             {
                 path: 'orders',
                 children: [
@@ -73,16 +60,16 @@ export const appRoutes: Routes = [
                         loadComponent: () => import('./app/pages/orders/order-form/order-form').then((m) => m.OrderForm)
                     },
                     {
+                        path: ':id/edit',
+                        loadComponent: () => import('./app/pages/orders/order-form/order-form').then((m) => m.OrderForm)
+                    },
+                    {
                         path: ':id',
                         loadComponent: () => import('./app/pages/orders/order-details/order-details').then((m) => m.OrderDetails)
                     }
                 ]
             },
-
-            // =====================================================
             // FARMACIAS
-            // =====================================================
-
             {
                 path: 'pharmacies',
                 children: [
@@ -92,6 +79,7 @@ export const appRoutes: Routes = [
                     },
                     {
                         path: 'new',
+                        canActivate: [jefaturaGuard],
                         loadComponent: () => import('./app/pages/pharmacies/pharmacy-form/pharmacy-form').then((m) => m.PharmacyForm)
                     },
                     {
@@ -105,11 +93,7 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
-
-            // =====================================================
-            // PRODUCTOS - SOLO JEFATURA
-            // =====================================================
-
+            // PRODUCTOS - [ROL JEFATURA]
             {
                 path: 'products',
                 canActivate: [jefaturaGuard],
@@ -128,11 +112,26 @@ export const appRoutes: Routes = [
                     }
                 ]
             },
-
-            // =====================================================
-            // REPORTES - SOLO JEFATURA
-            // =====================================================
-
+            // VENDEDORES - [ROL JEFATURA]
+            {
+                path: 'vendors',
+                canActivate: [jefaturaGuard],
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./app/pages/vendors/vendor-list/vendor-list').then((m) => m.VendorList)
+                    },
+                    {
+                        path: 'new',
+                        loadComponent: () => import('./app/pages/vendors/vendor-form/vendor-form').then((m) => m.VendorForm)
+                    },
+                    {
+                        path: ':id/edit',
+                        loadComponent: () => import('./app/pages/vendors/vendor-form/vendor-form').then((m) => m.VendorForm)
+                    }
+                ]
+            },
+            // REPORTES - [ROL JEFATURA]
             {
                 path: 'reports',
                 canActivate: [jefaturaGuard],
@@ -149,11 +148,7 @@ export const appRoutes: Routes = [
             }
         ]
     },
-
-    // =========================================================
     // ERROR
-    // =========================================================
-
     {
         path: 'notfound',
         component: Notfound

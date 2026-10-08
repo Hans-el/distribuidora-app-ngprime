@@ -1,3 +1,4 @@
+<!-- order-details.html -->
 <div class="grid grid-cols-12 gap-8">
     <div class="col-span-12 lg:col-span-10 xl:col-span-8">
         <!-- Volver -->
@@ -101,7 +102,12 @@
             <!-- Acciones -->
             @if (p.estado === 'PENDIENTE') {
 
+
+
             <div class="flex flex-wrap justify-end gap-2 border-t border-surface-200 dark:border-surface-700 mt-6 pt-6">
+                <p-button label="Editar pedido" icon="pi pi-pencil" severity="secondary"
+                    [routerLink]="['/orders', p.id, 'edit']" />
+
                 <p-button label="Anular" icon="pi pi-times" severity="danger" [outlined]="true"
                     [loading]="actualizando()" [disabled]="actualizando()" (onClick)="cambiarEstado('ANULADO')" />
 
