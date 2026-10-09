@@ -40,8 +40,16 @@
             </div>
             <!-- TODAS LAS FARMACIAS -->
             @if (vista() === 'todas') {
+            <div class="flex gap-2 mb-4">
+                <input pInputText type="text" [(ngModel)]="search" (keyup.enter)="buscar()"
+                    placeholder="Buscar por nombre o ciudad..." class="w-full md:w-80" />
+                <p-button icon="pi pi-search" severity="secondary" [outlined]="true" (onClick)="buscar()"
+                    pTooltip="Buscar" />
+            </div>
 
-            <p-table [value]="farmacias()" [loading]="loading()" [paginator]="true" [rows]="10" [rowHover]="true"
+
+            <p-table [value]="farmacias()" [loading]="loading()" [lazy]="true" [paginator]="true" [rows]="size"
+                [totalRecords]="totalRecords" (onLazyLoad)="onPageChange($event)" [rowHover]="true"
                 [showGridlines]="true" responsiveLayout="scroll" dataKey="id">
                 <ng-template #header>
                     <tr>

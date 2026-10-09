@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Farmacia, FarmaciaCreateRequest, FarmaciaInactiva, FarmaciaUpdateRequest, HistorialVendedor, ReasignarVendedorRequest } from '../models/pharmacy.model';
+import { PageResponse } from '../models/page.model';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +15,11 @@ export class PharmacyService {
     listar() {
         return this.http.get<Farmacia[]>(this.base);
     }
+    listarPaginado(search = '', page = 0, size = 10) {
+        return this.http.get<PageResponse<Farmacia>>(`${this.base}/page`, { params: { search, page, size } });
+    }
 
+    //ajustar el dia para que salga como inactivo, por defecto 60 dias
     inactivas(dias = 60) {
         return this.http.get<FarmaciaInactiva[]>(`${this.base}/inactive`, { params: { days: dias } });
     }
