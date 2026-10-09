@@ -1,111 +1,87 @@
 <div class="grid grid-cols-12 gap-8">
-
     <div class="col-span-12 lg:col-span-10 xl:col-span-8">
 
-        <!-- Header -->
-        <div class="mb-6">
-            <a routerLink="/pharmacies" class="inline-flex items-center gap-2 text-sm text-surface-500
-                       hover:text-primary transition-colors">
-                <i class="pi pi-arrow-left text-xs"></i>
+        <div class="mb-4">
+            <a routerLink="/pharmacies"
+                class="inline-flex items-center gap-2 text-sm text-surface-500 hover:text-primary transition-colors">
+                <i class="pi pi-arrow-left"></i>
                 Volver a farmacias
             </a>
-
-            <div class="mt-4">
-                <h2 class="text-xl font-semibold text-surface-900 dark:text-surface-0">
-                    Historial de vendedores
-                </h2>
-
-                <p class="text-surface-500 dark:text-surface-400 mt-1">
-                    Consulta la asignación histórica de vendedores de esta farmacia.
-                </p>
-            </div>
         </div>
 
-        <!-- Consulta por fecha -->
-        <div class="card mb-6">
+        <!-- Encabezado -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-xl font-semibold text-surface-900 dark:text-surface-0">Historial de vendedores</h2>
+                <p class="text-surface-500 dark:text-surface-400 mt-1">Quién ha atendido esta farmacia y desde cuándo.
+                </p>
+            </div>
+            @if (auth.isJefatura()) {
+            <p-button label="Reasignar vendedor" icon="pi pi-user-edit" (onClick)="abrirReasignar()" />
+            }
+        </div>
 
-            <div class="flex items-center gap-3 mb-5">
-                <div class="flex items-center justify-center w-10 h-10
-                           rounded-border bg-primary/10 text-primary">
-                    <i class="pi pi-calendar text-lg"></i>
+        <!-- Reasignar -->
+        @if (mostrarReasignar()) {
+        <div class="card mb-6">
+            <div class="font-semibold text-lg mb-4">Reasignar vendedor</div>
+
+            <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-12 md:col-span-6">
+                    <label class="block font-medium mb-2">Nuevo vendedor</label>
+                    <p-select [(ngModel)]="nuevoVendedorId" [options]="vendedores()" optionLabel="nombre"
+                        optionValue="id" placeholder="Selecciona un vendedor" [showClear]="true" class="w-full" />
                 </div>
 
-                <div>
-                    <h3 class="font-semibold text-surface-900 dark:text-surface-0">
-                        Consultar vendedor en una fecha
-                    </h3>
-
-                    <p class="text-sm text-surface-500 dark:text-surface-400">
-                        Consulta quién estaba asignado a la farmacia en una fecha específica.
-                    </p>
+                <div class="col-span-12 md:col-span-6">
+                    <label class="block font-medium mb-2">Vigente desde</label>
+                    <p-datepicker [(ngModel)]="fechaReasignacion" dateFormat="yy-mm-dd" [showIcon]="true"
+                        styleClass="w-full" class="w-full" />
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-end gap-3">
+            @if (errorReasignacion()) {
+            <div class="mt-4">
+                <p-message severity="error" [text]="errorReasignacion()!" />
+            </div>
+            }
 
-                <div class="flex flex-col gap-2">
-                    <label for="fechaConsulta" class="text-sm font-medium text-surface-700 dark:text-surface-200">
-                        Fecha
-                    </label>
+            <div class="flex justify-end gap-2 mt-6">
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardandoReasignacion()"
+                    (onClick)="mostrarReasignar.set(false)" />
+                <p-button label="Confirmar" icon="pi pi-check" [loading]="guardandoReasignacion()"
+                    [disabled]="guardandoReasignacion()" (onClick)="guardarReasignacion()" />
+            </div>
+        </div>
+        }
 
-                    <p-datepicker inputId="fechaConsulta" [(ngModel)]="fechaConsulta" dateFormat="yy-mm-dd"
-                        [showIcon]="true" placeholder="Seleccionar fecha" />
-                </div>
+        <!-- Consultar por fecha -->
+        <div class="card mb-6">
+            <div class="font-semibold text-lg mb-4">Consultar vendedor en una fecha</div>
 
-                <p-button label="Consultar" icon="pi pi-search" (onClick)="consultarFecha()"
-                    [disabled]="!fechaConsulta" />
-
+            <div class="flex flex-wrap items-center gap-2">
+                <p-datepicker [(ngModel)]="fechaConsulta" dateFormat="yy-mm-dd" [showIcon]="true"
+                    placeholder="Selecciona una fecha" />
+                <p-button label="Consultar" icon="pi pi-search" severity="secondary" (onClick)="consultarFecha()" />
             </div>
 
             @if (resultadoFecha(); as r) {
-            <div class="mt-5">
-                <p-message severity="success">
-                    <div class="flex flex-col gap-1">
-                        <span>
-                            Vendedor:
-                            <strong>{{ r.vendedor }}</strong>
-                        </span>
-
-                        <span class="text-sm">
-                            {{ r.fechaDesde }}
-                            —
-                            {{ r.fechaHasta ?? 'actualidad' }}
-                        </span>
-                    </div>
-                </p-message>
-            </div>
+            <p class="mt-4 text-surface-700 dark:text-surface-200">
+                Vendedor: <span class="font-medium">{{ r.vendedor }}</span>
+                <span class="text-surface-500">({{ r.fechaDesde }} — {{ r.fechaHasta ?? 'actualidad' }})</span>
+            </p>
             }
-
             @if (errorFecha()) {
-            <div class="mt-5">
-                <p-message severity="error">
-                    {{ errorFecha() }}
-                </p-message>
+            <div class="mt-4">
+                <p-message severity="warn" [text]="errorFecha()!" />
             </div>
             }
-
         </div>
 
         <!-- Historial -->
         <div class="card">
-
-            <div class="flex items-center justify-between mb-5">
-                <div>
-                    <h3 class="font-semibold text-surface-900 dark:text-surface-0">
-                        Historial de asignaciones
-                    </h3>
-
-                    <p class="text-sm text-surface-500 dark:text-surface-400 mt-1">
-                        Registro histórico de vendedores asignados.
-                    </p>
-                </div>
-
-                <i class="pi pi-history text-xl text-surface-400"></i>
-            </div>
-
             <p-table [value]="historial()" [loading]="loading()" [rowHover]="true" [showGridlines]="true"
                 responsiveLayout="scroll">
-
                 <ng-template #header>
                     <tr>
                         <th>Vendedor</th>
@@ -117,64 +93,22 @@
 
                 <ng-template #body let-h>
                     <tr>
-
+                        <td><span class="font-medium">{{ h.vendedor }}</span></td>
+                        <td>{{ h.fechaDesde }}</td>
+                        <td>{{ h.fechaHasta ?? '—' }}</td>
                         <td>
-                            <span class="font-medium text-surface-900 dark:text-surface-0">
-                                {{ h.vendedor }}
-                            </span>
+                            <p-tag [value]="h.vigente ? 'Vigente' : 'Histórico'"
+                                [severity]="h.vigente ? 'success' : 'secondary'" />
                         </td>
-
-                        <td>
-                            <span class="text-surface-600 dark:text-surface-300">
-                                {{ h.fechaDesde }}
-                            </span>
-                        </td>
-
-                        <td>
-                            <span class="text-surface-600 dark:text-surface-300">
-                                {{ h.fechaHasta ?? '—' }}
-                            </span>
-                        </td>
-
-                        <td>
-                            @if (h.vigente) {
-                            <p-tag value="Vigente" severity="success" />
-                            } @else {
-                            <p-tag value="Histórico" severity="secondary" />
-                            }
-                        </td>
-
                     </tr>
                 </ng-template>
 
                 <ng-template #emptymessage>
                     <tr>
-                        <td colspan="4">
-                            <div class="flex flex-col items-center justify-center py-8 text-center">
-                                <i class="pi pi-history text-3xl text-surface-400 mb-3"></i>
-
-                                <span class="text-surface-500">
-                                    No hay registros de historial.
-                                </span>
-                            </div>
-                        </td>
+                        <td colspan="4" class="text-center py-8 text-surface-500">Sin historial registrado.</td>
                     </tr>
                 </ng-template>
-
-                <ng-template #loadingbody>
-                    <tr>
-                        <td colspan="4">
-                            <div class="py-4 text-center text-surface-500">
-                                Cargando historial...
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
-
             </p-table>
-
         </div>
-
     </div>
-
 </div>

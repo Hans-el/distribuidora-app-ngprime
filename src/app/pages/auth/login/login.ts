@@ -28,14 +28,11 @@ export class Login {
 
     login(): void {
         this.error.set(null);
-
         if (!this.username.trim() || !this.password) {
             this.error.set('Ingrese usuario y contraseña.');
             return;
         }
-
         this.loading.set(true);
-
         this.auth
             .login({
                 username: this.username.trim(),
@@ -48,12 +45,7 @@ export class Login {
                 },
                 error: (error) => {
                     this.loading.set(false);
-
-                    if (error.status === 401) {
-                        this.error.set('Usuario o contraseña incorrectos.');
-                    } else {
-                        this.error.set('No fue posible iniciar sesión. Intente nuevamente.');
-                    }
+                    this.error.set(error.status === 429 ? error.error?.message : 'Usuario o contraseña incorrectos');
                 }
             });
     }
