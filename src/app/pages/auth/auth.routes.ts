@@ -5,6 +5,10 @@ export default [
         path: 'login',
         loadComponent: () => import('./login/login').then((m) => m.Login)
     },
+    // {
+    //     path: 'change-password',
+    //     loadComponent: () => import('./change-password/change-password').then((m) => m.ChangePassword)
+    // },
     {
         path: 'access',
         loadComponent: () => import('./access').then((m) => m.Access)

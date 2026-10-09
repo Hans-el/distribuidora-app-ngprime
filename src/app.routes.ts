@@ -15,6 +15,10 @@ export const appRoutes: Routes = [
         pathMatch: 'full'
     },
     {
+        path: 'change-password',
+        loadComponent: () => import('./app/pages/auth/change-password/change-password').then((m) => m.ChangePassword)
+    },
+    {
         path: 'auth',
         children: [
             {

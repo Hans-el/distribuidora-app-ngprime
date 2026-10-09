@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse, Rol } from '../models/auth.model';
+import { ChangePasswordRequest, LoginRequest, LoginResponse, Rol } from '../models/auth.model';
 
 const TOKEN_KEY = 'distribuidora_token';
 
@@ -12,6 +12,7 @@ interface DecodedSession {
     nombre: string;
     rol: Rol;
     vendedorId: number | null;
+    debeCambiarPassword: boolean;
 }
 
 @Injectable({
@@ -26,19 +27,19 @@ export class AuthService {
     isJefatura = computed(() => this.sessionSignal()?.rol === 'JEFATURA');
     nombre = computed(() => this.sessionSignal()?.nombre ?? '');
     rol = computed<Rol | null>(() => this.sessionSignal()?.rol ?? null);
+    debeCambiarPassword = computed(() => this.sessionSignal()?.debeCambiarPassword ?? false);
 
     constructor(
         private http: HttpClient,
         private router: Router
     ) {}
 
+    private guardarSesion(res: LoginResponse): void {
+        localStorage.setItem(TOKEN_KEY, res.token);
+        this.sessionSignal.set(this.decode(res.token));
+    }
     login(credentials: LoginRequest) {
-        return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
-            tap((res) => {
-                localStorage.setItem(TOKEN_KEY, res.token);
-                this.sessionSignal.set(this.decode(res.token));
-            })
-        );
+        return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(tap((res) => this.guardarSesion(res)));
     }
 
     logout() {
@@ -51,6 +52,9 @@ export class AuthService {
         const raw = localStorage.getItem(TOKEN_KEY);
         // Si el token fue manipulado o venció, lo tratamos como si no existiera.
         return raw && this.decode(raw) ? raw : null;
+    }
+    cambiarPassword(request: ChangePasswordRequest) {
+        return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/change-password`, request).pipe(tap((res) => this.guardarSesion(res)));
     }
 
     private readFromStorage(): DecodedSession | null {
@@ -86,7 +90,8 @@ export class AuthService {
                 username: claims.sub,
                 nombre: claims.nombre,
                 rol: claims.rol,
-                vendedorId: claims.vendedorId === '' ? null : Number(claims.vendedorId)
+                vendedorId: claims.vendedorId === '' ? null : Number(claims.vendedorId),
+                debeCambiarPassword: claims.debeCambiarPassword
             };
         } catch {
             return null; // token corrupto / manipulado a mano

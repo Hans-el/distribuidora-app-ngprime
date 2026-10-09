@@ -23,7 +23,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Estado</th>
-                        <th class="w-32">Acciones</th>
+                        <th class="w-40">Acciones</th>
                     </tr>
                 </ng-template>
 
@@ -39,6 +39,9 @@
                                 <p-button icon="pi pi-pencil" [text]="true" severity="secondary"
                                     [routerLink]="['/vendors', vendedor.id, 'edit']" pTooltip="Editar" />
 
+                                <p-button icon="pi pi-key" [text]="true" severity="secondary"
+                                    (onClick)="resetear(vendedor)" pTooltip="Restablecer contraseña" />
+
                                 <p-button [icon]="vendedor.activo ? 'pi pi-ban' : 'pi pi-check'" [text]="true"
                                     [severity]="vendedor.activo ? 'danger' : 'success'"
                                     (onClick)="toggleActivo(vendedor)"
@@ -52,8 +55,26 @@
                     <tr>
                         <td colspan="3" class="text-center py-8 text-surface-500">No hay vendedores registrados.</td>
                     </tr>
+
                 </ng-template>
+
             </p-table>
         </div>
     </div>
 </div>
+@if (mostrarCredenciales()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true"
+    aria-labelledby="credenciales-title">
+    <div class="card w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 id="credenciales-title" class="text-lg font-semibold">Credenciales</h3>
+            <p-button icon="pi pi-times" [text]="true" severity="secondary" (onClick)="cerrarCredenciales()"
+                ariaLabel="Cerrar" />
+        </div>
+        <div class="space-y-3">
+            <p><span class="font-medium">Usuario:</span> {{ credUsername() }}</p>
+            <p><span class="font-medium">Contraseña:</span> {{ credPassword() }}</p>
+        </div>
+    </div>
+</div>
+}

@@ -21,6 +21,9 @@ export class VendorList implements OnInit {
     vendedores = signal<Vendedor[]>([]);
     loading = signal(false);
     error = signal<string | null>(null);
+    mostrarCredenciales = signal(false);
+    credUsername = signal('');
+    credPassword = signal('');
 
     ngOnInit(): void {
         this.cargar();
@@ -50,5 +53,25 @@ export class VendorList implements OnInit {
             // Aquí llega el 422 si intentas desactivar a alguien con farmacias asignadas
             error: (err) => this.error.set(err?.error?.message ?? 'No se pudo cambiar el estado')
         });
+    }
+    resetear(vendedor: Vendedor): void {
+        if (!confirm(`¿Restablecer la contraseña de ${vendedor.nombre}? Su contraseña actual dejará de funcionar.`)) {
+            return;
+        }
+        this.error.set(null);
+
+        this.vendorService.resetearPassword(vendedor.id).subscribe({
+            next: (res) => {
+                this.credUsername.set(res.username);
+                this.credPassword.set(res.passwordTemporal);
+                this.mostrarCredenciales.set(true);
+            },
+            error: (err) => this.error.set(err?.error?.message ?? 'No se pudo restablecer la contraseña')
+        });
+    }
+
+    cerrarCredenciales(): void {
+        this.mostrarCredenciales.set(false);
+        this.credPassword.set('');
     }
 }

@@ -21,7 +21,7 @@ export interface FarmaciaInactiva {
     region: string;
     ultimaVentaEntregada: string | null;
 }
-// vendedores
+// vendedores: crear, reasignar, listar, eliminar
 export interface Vendedor {
     id: number;
     nombre: string;
@@ -48,4 +48,19 @@ export interface FarmaciaUpdateRequest {
 export interface ReasignarVendedorRequest {
     vendedorId: number;
     fecha?: string;
+}
+export interface VendedorCreateRequest {
+    nombre: string;
+    username: string;
+}
+
+export interface VendedorCreado {
+    vendedor: Vendedor;
+    username: string;
+    passwordTemporal: string;
+}
+
+export interface PasswordTemporal {
+    username: string;
+    passwordTemporal: string;
 }

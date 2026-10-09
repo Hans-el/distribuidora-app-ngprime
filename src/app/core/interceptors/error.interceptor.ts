@@ -14,6 +14,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             if (err.status === 401 && auth.isLoggedIn()) {
                 auth.logout();
                 router.navigateByUrl('/login');
+            } else if (err.status === 403 && err.error?.error === 'PASSWORD_CHANGE_REQUIRED') {
+                router.navigateByUrl('/change-password');
             }
             return throwError(() => err);
         })

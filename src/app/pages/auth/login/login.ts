@@ -41,7 +41,7 @@ export class Login {
             .subscribe({
                 next: () => {
                     this.loading.set(false);
-                    this.router.navigateByUrl('/dashboard');
+                    this.router.navigateByUrl(this.auth.debeCambiarPassword() ? '/change-password' : '/dashboard');
                 },
                 error: (error) => {
                     this.loading.set(false);

@@ -1,0 +1,27 @@
+<p-dialog header="Credenciales de acceso" [visible]="visible()" [modal]="true" [closable]="false"
+    [style]="{ width: '30rem' }">
+    <p class="text-surface-600 dark:text-surface-300 mb-4">Entrega estos datos al vendedor. <strong>La contraseña se
+            muestra una sola vez</strong> y no se puede volver a consultar. Si se pierde, se restablece desde la lista
+        de vendedores.</p>
+
+    <div class="flex flex-col gap-3">
+        <div>
+            <div class="text-sm text-surface-500 mb-1">Usuario</div>
+            <div class="p-3 rounded-border bg-surface-100 dark:bg-surface-800 font-mono">{{ username() }}</div>
+        </div>
+        <div>
+            <div class="text-sm text-surface-500 mb-1">Contraseña temporal</div>
+            <div class="p-3 rounded-border bg-surface-100 dark:bg-surface-800 font-mono text-lg tracking-wider">
+                {{ password() }}
+            </div>
+        </div>
+    </div>
+
+    <p class="text-sm text-surface-500 mt-4">Al ingresar por primera vez, el sistema le pedirá cambiarla.</p>
+
+    <ng-template #footer>
+        <p-button [label]="copiado ? 'Copiado' : 'Copiar contraseña'" icon="pi pi-copy" severity="secondary"
+            [outlined]="true" (onClick)="copiar()" />
+        <p-button label="Cerrar" icon="pi pi-check" (onClick)="cerrar()" />
+    </ng-template>
+</p-dialog>
